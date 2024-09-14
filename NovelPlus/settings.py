@@ -41,9 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'users.apps.UsersConfig',
-    'frontend.apps.FrontendConfig',
+    'common.apps.CommonConfig',
     'store.apps.StoreConfig',
-    'vacancy.apps.VacancyConfig'
+    'vacancy.apps.VacancyConfig',
+    'frontend.apps.FrontendConfig',
+
 ]
 
 MIDDLEWARE = [
