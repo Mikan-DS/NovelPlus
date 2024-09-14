@@ -1,10 +1,11 @@
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 
 from common.models import ItemData
 
-
+@csrf_exempt
 def get_cards(request: HttpRequest, variant: str, collection: str) -> HttpResponse:
     try:
         cards = []
@@ -26,7 +27,7 @@ def get_cards(request: HttpRequest, variant: str, collection: str) -> HttpRespon
         else:
             return HttpResponse("Произошла непредвиденная ошибка", status=500)
 
-
+@csrf_exempt
 def get_item(request: HttpRequest, collection: str, item_id: int) -> HttpResponse:
     try:
         item: ItemData = ItemData.objects.get(collection__name=collection, id=item_id)

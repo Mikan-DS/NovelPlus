@@ -1,8 +1,10 @@
 from django.http import JsonResponse, HttpResponse, HttpRequest
+from django.views.decorators.csrf import csrf_exempt
 
 from users.models import User
 
 
+@csrf_exempt
 def get_me(request: HttpRequest) -> HttpResponse:
 
     user: User = request.user
@@ -15,7 +17,8 @@ def get_me(request: HttpRequest) -> HttpResponse:
                 'lastName': user.last_name,
                 'email': user.email,
                 'avatar': user.avatar.url if user.avatar else None,
-                'isAdmin': user.is_staff
+                'isAdmin': user.is_staff,
+                'isAuthenticated': True
             }
         )
     else:
@@ -24,6 +27,7 @@ def get_me(request: HttpRequest) -> HttpResponse:
                 'username': "Anonymous",
                 'firstName': "Гость",
                 'lastName': "",
+                'isAuthenticated': False
             }
         )
 

@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-+l_9olvm8c90$1y39)ukodf4_zdt^4vhdf+n+b=^i9tyl$wki%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["vnovelplus.temp.swtest.ru", "novelplus.ru", "localhost"]
+ALLOWED_HOSTS = ["*", "vnovelplus.temp.swtest.ru", "novelplus.ru", "localhost"]
 
 
 # Application definition
