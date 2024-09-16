@@ -8,7 +8,10 @@ from common.models import ItemDataCollection, ItemDataStatus
 def create_collection_types(sender, **kwargs):
     default_collection_types = (
         ("game", "Игра"),
-        ("sprite", "Спрайт")
+        ("sprite", "Спрайт"),
+
+        ("developer", "Работник"),
+        ("project", "Проект"),
     )
 
     for collection_name, collection_verbose in default_collection_types:
@@ -20,7 +23,11 @@ def create_status_types(sender, **kwargs):
     default_status_types = (
         ("announce", "Анонс"),
         ("developing", "Разрабатывается"),
-        ("completed", "Вышло")
+        ("completed", "Вышло"),
+
+        ("active_search", "Активный поиск"),
+        ("not_search", "Поиск завершен"),
+        ("search", "Принимаются заявки"),
     )
 
     for collection_name, collection_verbose in default_status_types:

@@ -139,8 +139,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS_ORIGIN_ALLOW_ALL = True
-CSRF_TRUSTED_ORIGINS = ['https://novelplus.ru']
+CORS_ORIGIN_WHITELIST = ['https://novelplus.ru', 'http://novelplus.ru', 'http://localhost:8000', 'http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://novelplus.ru', 'http://localhost:8000', 'http://localhost:3000']
 
 CORS_ALLOW_CREDENTIALS = True
 
