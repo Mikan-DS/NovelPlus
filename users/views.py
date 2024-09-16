@@ -1,5 +1,8 @@
 import json
+import uuid
+from io import BytesIO
 
+import requests
 from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse, HttpResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
@@ -36,7 +39,6 @@ def get_me(request: HttpRequest) -> HttpResponse:
 
 @csrf_exempt
 def logout_user(request: HttpRequest) -> HttpResponse:
-
     logout(request)
 
     return JsonResponse(
@@ -47,6 +49,7 @@ def logout_user(request: HttpRequest) -> HttpResponse:
             'isAuthenticated': False
         }
     )
+
 
 @csrf_exempt
 def login_user(request: HttpRequest) -> HttpResponse:
@@ -64,6 +67,7 @@ def login_user(request: HttpRequest) -> HttpResponse:
             "invalid username or password",
             status=401
         )
+
 
 @csrf_exempt
 def register_user(request: HttpRequest) -> HttpResponse:
@@ -87,4 +91,46 @@ def register_user(request: HttpRequest) -> HttpResponse:
     )
 
     login(request, user)
+    return get_me(request)
+
+
+@csrf_exempt
+def login_via_vk(request: HttpRequest) -> HttpResponse:
+    try:
+        data = json.loads(request.body)
+    except json.decoder.JSONDecodeError:
+        data = dict(request.GET or request.POST)
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    body = {
+        'access_token': data['access_token'],
+        "client_id": 52316017  # TODO Move to config
+    }
+    answer = requests.post('https://id.vk.com/oauth2/user_info', headers=headers, data=body)
+
+    if answer.status_code != 200:
+        return JsonResponse({'message': answer.text}, status=400)
+
+    vk_user = answer.json()
+    vk_user = vk_user['user']
+
+    r = requests.get(vk_user.get('avatar').replace("&cs=50x50", "&cs=300x300"))
+
+    avatar = None
+    if r.status_code == 200:
+        avatar = BytesIO(r.content)
+
+    user, create = User.objects.get_or_create(
+        vk_user_id=vk_user.get('user_id'),
+        defaults={
+            'first_name': vk_user.get('first_name'),
+            'last_name': vk_user.get('last_name'),
+            'email': vk_user.get('email', None),
+            'username': str(uuid.uuid4())
+        }
+    )
+    user.avatar.save(user.username + ".jpg", avatar, save=True)
+
+    login(request, user)
+
     return get_me(request)
