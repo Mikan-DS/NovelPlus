@@ -74,11 +74,21 @@ class ItemData(models.Model):
         }
 
     @property
+    def item_dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
+        return {
+            "image": self.image.url,
+            "title": self.title,
+            "shortDescription": self.short_description,
+            "description": self.description,
+        }
+
+
+    @property
     def card_dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
         return {
             "id": self.id,
             "title": self.title,
-            "preview": self.preview
+            "preview": self.preview.url
         }
 
     @property
@@ -93,6 +103,6 @@ class ItemData(models.Model):
         return {
             "id": self.id,
             "title": self.title,
-            "preview": self.preview
+            "preview": self.preview.url
         }
 

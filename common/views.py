@@ -31,9 +31,7 @@ def get_cards(request: HttpRequest, variant: str, collection: str) -> HttpRespon
 def get_item(request: HttpRequest, collection: str, item_id: int) -> HttpResponse:
     try:
         item: ItemData = ItemData.objects.get(collection__name=collection, id=item_id)
-        return JsonResponse({
-            'item': item.dict
-        })
+        return JsonResponse(item.item_dict)
     except Exception as e:
         if request.user.is_superuser:
             return HttpResponse(f"Произошла ошибка: {repr(e)}", status=500)
