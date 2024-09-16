@@ -52,6 +52,8 @@ class ItemData(models.Model):
 
     author = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name='Автор', null=True)
 
+    is_passed_moderation = models.BooleanField(default=False, verbose_name='Прошло модерацию')
+
     class Meta:
         ordering = ('-created_at',)
         verbose_name = 'Информационный объект'
