@@ -24,7 +24,8 @@ def get_me(request: HttpRequest) -> HttpResponse:
                 'email': user.email,
                 'avatar': user.avatar.url if user.avatar else None,
                 'isAdmin': user.is_staff,
-                'isAuthenticated': True
+                'isAuthenticated': True,
+                'id': user.id
             }
         )
     else:
