@@ -114,12 +114,6 @@ def login_via_vk(request: HttpRequest) -> HttpResponse:
     vk_user = answer.json()
     vk_user = vk_user['user']
 
-    r = requests.get(vk_user.get('avatar').replace("&cs=50x50", "&cs=300x300"))
-
-    avatar = None
-    if r.status_code == 200:
-        avatar = BytesIO(r.content)
-
     user, create = User.objects.get_or_create(
         vk_user_id=vk_user.get('user_id'),
         defaults={
@@ -129,7 +123,13 @@ def login_via_vk(request: HttpRequest) -> HttpResponse:
             'username': str(uuid.uuid4())
         }
     )
-    user.avatar.save(user.username + ".jpg", avatar, save=True)
+    if create is True:
+        r = requests.get(vk_user.get('avatar').replace("&cs=50x50", "&cs=300x300"))
+
+        avatar = None
+        if r.status_code == 200:
+            avatar = BytesIO(r.content)
+        user.avatar.save(user.username + ".jpg", avatar, save=True)
 
     login(request, user)
 
