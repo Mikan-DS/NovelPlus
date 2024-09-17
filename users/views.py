@@ -7,6 +7,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse, HttpResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 
+from common.exceptions import NovelPlusHttpExceptionResponse
 from users.models import User
 
 
@@ -63,8 +64,9 @@ def login_user(request: HttpRequest) -> HttpResponse:
         login(request, user)
         return get_me(request)
     else:
-        return HttpResponse(
-            "invalid username or password",
+        return NovelPlusHttpExceptionResponse(
+            request,
+            "Неправильный логин или пароль",
             status=401
         )
 
@@ -77,11 +79,10 @@ def register_user(request: HttpRequest) -> HttpResponse:
         data = dict(request.GET or request.POST)
 
     if User.objects.filter(username=data['username'].lower()).exists():
-        return JsonResponse(
-            {
-                'message': "username already exists"
-            },
-            status=400
+        return NovelPlusHttpExceptionResponse(
+            request,
+            "Пользователь с таким ником уже существует",
+            status=401
         )
 
     user = User.objects.create_user(
@@ -120,7 +121,7 @@ def login_via_vk(request: HttpRequest) -> HttpResponse:
             'first_name': vk_user.get('first_name'),
             'last_name': vk_user.get('last_name'),
             'email': vk_user.get('email', None),
-            'username': str(uuid.uuid4())
+            'username': str(vk_user.get('user_id'))+"_"+str(uuid.uuid4())
         }
     )
     if create is True:
