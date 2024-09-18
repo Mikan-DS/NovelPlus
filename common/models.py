@@ -98,13 +98,9 @@ class ItemData(models.Model):
         card = self.card_dict
         card.update({
             "status": self.status.verbose,
-            "updatedAt": self.updated_at.timestamp(),
+            "updatedAt": self.updated_at.timestamp()//.001,
             "shortDescription": self.short_description
         })
 
-        return {
-            "id": self.id,
-            "title": self.title,
-            "preview": self.preview.url
-        }
+        return card
 
