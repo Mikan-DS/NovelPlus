@@ -1,9 +1,10 @@
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
+from common.exceptions import NovelPlusHttpExceptionResponse
 from common.models import ItemData
+
 
 @csrf_exempt
 def get_cards(request: HttpRequest, variant: str, collection: str) -> HttpResponse:
@@ -22,10 +23,13 @@ def get_cards(request: HttpRequest, variant: str, collection: str) -> HttpRespon
             'cards': cards
         })
     except Exception as e:
-        if request.user.is_superuser:
-            return HttpResponse(f"Произошла ошибка: {repr(e)}", status=500)
-        else:
-            return HttpResponse("Произошла непредвиденная ошибка", status=500)
+        return NovelPlusHttpExceptionResponse(
+            request,
+            "Exception",
+            500,
+            {"message": repr(e)}
+        )
+
 
 @csrf_exempt
 def get_item(request: HttpRequest, collection: str, item_id: int) -> HttpResponse:
@@ -33,8 +37,9 @@ def get_item(request: HttpRequest, collection: str, item_id: int) -> HttpRespons
         item: ItemData = ItemData.objects.get(collection__name=collection, id=item_id)
         return JsonResponse(item.item_dict)
     except Exception as e:
-        if request.user.is_superuser:
-            return HttpResponse(f"Произошла ошибка: {repr(e)}", status=500)
-        else:
-            return HttpResponse("Произошла непредвиденная ошибка", status=500)
-
+        return NovelPlusHttpExceptionResponse(
+            request,
+            "Exception",
+            500,
+            {"message": repr(e)}
+        )
