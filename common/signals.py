@@ -15,7 +15,10 @@ def create_collection_types(sender, **kwargs):
     )
 
     for collection_name, collection_verbose in default_collection_types:
-        ItemDataCollection.objects.get_or_create(name=collection_name, verbose=collection_verbose)
+        try:
+            ItemDataCollection.objects.get_or_create(name=collection_name, verbose=collection_verbose)
+        except:
+            pass
 
 
 @receiver(post_migrate)
@@ -31,7 +34,10 @@ def create_status_types(sender, **kwargs):
     )
 
     for collection_name, collection_verbose in default_status_types:
-        ItemDataStatus.objects.get_or_create(name=collection_name, verbose=collection_verbose)
+        try:
+            ItemDataStatus.objects.get_or_create(name=collection_name, verbose=collection_verbose)
+        except:
+            pass
 
 
 def add_signals():
