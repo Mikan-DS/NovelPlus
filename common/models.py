@@ -50,7 +50,7 @@ class ItemData(models.Model):
 
     status = models.ForeignKey(ItemDataStatus, on_delete=models.CASCADE, verbose_name='Статус')
 
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name='Автор', null=True)
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name='Автор', null=True, blank=True)
 
     is_passed_moderation = models.BooleanField(default=False, verbose_name='Прошло модерацию')
 
