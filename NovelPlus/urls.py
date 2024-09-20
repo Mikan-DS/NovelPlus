@@ -25,7 +25,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('api/', include('common.urls')),
 
-    re_path(r'(?:store|vacancy|[a-z]+)?(?:/[^/]+)?/?', include('frontend.urls')),
+    path(r'', include('frontend.urls')),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
