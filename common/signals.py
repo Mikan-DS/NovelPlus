@@ -36,8 +36,8 @@ def create_status_types(sender, **kwargs):
     for collection_name, collection_verbose in default_status_types:
         try:
             ItemDataStatus.objects.get_or_create(name=collection_name, verbose=collection_verbose)
-        except:
-            pass
+        except Exception as e:
+            print(f"[-] {repr(e)} - {collection_name} {collection_verbose}")
 
 
 def add_signals():
