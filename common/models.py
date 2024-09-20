@@ -6,7 +6,7 @@ from users.models import User
 
 
 class ItemDataCollection(models.Model):
-    name = models.CharField(max_length=12, primary_key=True)
+    name = models.CharField(max_length=20, primary_key=True)
     verbose = models.CharField(max_length=20)
 
     def __str__(self):
@@ -19,7 +19,7 @@ class ItemDataCollection(models.Model):
 
 
 class ItemDataStatus(models.Model):
-    name = models.CharField(max_length=12, primary_key=True)
+    name = models.CharField(max_length=20, primary_key=True)
     verbose = models.CharField(max_length=20)
 
     def __str__(self):
