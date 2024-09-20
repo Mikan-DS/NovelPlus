@@ -58,3 +58,7 @@ def item_page(request, collection, item_id):
     title = " | ".join(titles + TITLE_TAGS)
 
     return render(request, 'frontend/app.html', {"title": title})
+
+
+def about(request):
+    return render(request, 'frontend/app.html', {"title": "О проекте | Визуальные новеллы | NovelPlus"})
