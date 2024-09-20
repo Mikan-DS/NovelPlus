@@ -60,7 +60,12 @@ class ItemData(models.Model):
         verbose_name_plural = 'Информационные объекты'
 
     def __str__(self):
-        return f'{self.collection.verbose} "{self.title}" ({self.author.username})'
+        author = ""
+        if self.author:
+            author = f" ({self.author.username})"
+        else:
+            author = " (Archive)"
+        return f'{self.collection.verbose} "{self.title}"{author}'
 
     @property
     def dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
