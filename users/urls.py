@@ -8,4 +8,5 @@ urlpatterns = [
     path('login/', views.login_user, name='login'),
     path('register/', views.register_user, name='register'),
     path('login-via-vk/', views.login_via_vk, name='login-via-vk'),
+    path('get-user/<int:user_id>/', views.get_user, name='get-user')
 ]
