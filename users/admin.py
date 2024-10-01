@@ -2,7 +2,14 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from users.admin_forms import UserCreationForm, UserChangeForm
-from users.models import User
+from users.models import User, UserContextButton
+
+
+class UserContextButtonsInline(admin.TabularInline):
+    model = UserContextButton
+    verbose_name = 'Контекстная кнопка пользователя'
+    verbose_name_plural = 'Контекстные кнопки пользователя'
+    extra = 1
 
 
 class CustomUserAdmin(UserAdmin):
@@ -23,6 +30,7 @@ class CustomUserAdmin(UserAdmin):
             )}
          ),
     )
+    inlines = [UserContextButtonsInline]
     search_fields = ("email", "username", "email")
     ordering = ("id",)
 

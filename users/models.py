@@ -30,6 +30,9 @@ class User(AbstractUser):
         }
 
     def get_user_page_info_dict(self, current_user_id: typing.Union[int, None]) -> dict:
+
+        context_buttons = [{"name": cb.button_type.verbose, "url": cb.url} for cb in self.context_buttons.all()]
+
         return {
             'username': self.username,
             'firstName': self.first_name,
@@ -39,5 +42,29 @@ class User(AbstractUser):
             'description': self.description,
             'isOwner': self.id == current_user_id,
             'dateJoined': self.date_joined.timestamp(),
-            'id': self.id
+            'id': self.id,
+            'contextButtons': context_buttons
         }
+
+
+class UserContextButton(models.Model):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='context_buttons',
+                             verbose_name='Пользователь'
+                             )
+    button_type = models.ForeignKey(
+        'common.ContextButtonType',
+        on_delete=models.CASCADE,
+        related_name='user_buttons',
+        verbose_name='Тип кнопки'
+    )
+    url = models.URLField(max_length=255, verbose_name='Ссылка')
+
+    class Meta:
+        verbose_name = 'Контекстная кнопка пользователей'
+        verbose_name_plural = 'Контекстные кнопки пользователей'
+        unique_together = ('user', 'button_type')
+
+    def __str__(self):
+        return f'{self.button_type.verbose} = {self.url}'
