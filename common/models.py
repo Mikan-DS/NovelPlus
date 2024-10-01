@@ -109,3 +109,15 @@ class ItemData(models.Model):
 
         return card
 
+
+class ContextButtonType(models.Model):
+    name = models.CharField(max_length=20, primary_key=True)
+    verbose = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.verbose
+
+    class Meta:
+        ordering = ('verbose',)
+        verbose_name = 'Тип контекстной кнопки'
+        verbose_name_plural = 'Типы контекстных кнопок'
