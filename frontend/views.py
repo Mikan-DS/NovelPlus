@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
 from common.models import ItemData
+from users.models import User
 
 TITLE_TAGS = [
     "Визуальные новеллы",
@@ -62,3 +63,16 @@ def item_page(request, collection, item_id):
 
 def about(request):
     return render(request, 'frontend/app.html', {"title": "О проекте | Визуальные новеллы | NovelPlus"})
+
+
+def user(request, user_id):
+    titles = []
+    try:
+        user = User.objects.get(id=user_id)
+        titles.append("Страница пользователя "+user.username)
+    except ItemData.DoesNotExist:
+        titles.append("Страница не найдена")
+
+    title = " | ".join(titles + TITLE_TAGS)
+
+    return render(request, 'frontend/app.html', {"title": title})

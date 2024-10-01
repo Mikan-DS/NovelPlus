@@ -17,16 +17,7 @@ def get_me(request: HttpRequest) -> HttpResponse:
 
     if user.is_authenticated:
         return JsonResponse(
-            {
-                'username': user.username,
-                'firstName': user.first_name,
-                'lastName': user.last_name,
-                'email': user.email,
-                'avatar': user.avatar.url if user.avatar else None,
-                'isAdmin': user.is_staff,
-                'isAuthenticated': True,
-                'id': user.id
-            }
+            user.as_user_info_dict
         )
     else:
         return JsonResponse(
@@ -37,6 +28,17 @@ def get_me(request: HttpRequest) -> HttpResponse:
                 'isAuthenticated': False
             }
         )
+
+
+@csrf_exempt
+def get_user(request: HttpRequest, user_id: int) -> HttpResponse:
+    try:
+        user: User = User.objects.get(id=user_id)
+        return JsonResponse(user.get_user_page_info_dict(user_id))
+    except User.DoesNotExist:
+        return NovelPlusHttpExceptionResponse(request, "Пользователь не найдет", 404)
+    except Exception as e:
+        return NovelPlusHttpExceptionResponse(request, "Произошла ошибка на стороне сервера", 500, repr(e))
 
 
 @csrf_exempt
@@ -122,7 +124,7 @@ def login_via_vk(request: HttpRequest) -> HttpResponse:
             'first_name': vk_user.get('first_name'),
             'last_name': vk_user.get('last_name'),
             'email': vk_user.get('email', None),
-            'username': str(vk_user.get('user_id'))+"_"+str(uuid.uuid4())
+            'username': str(vk_user.get('user_id')) + "_" + str(uuid.uuid4())
         }
     )
     if create is True:
