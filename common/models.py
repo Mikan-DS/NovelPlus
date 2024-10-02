@@ -82,11 +82,15 @@ class ItemData(models.Model):
 
     @property
     def item_dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
+
+        context_buttons = [{"name": cb.button_type.verbose, "url": cb.url} for cb in self.context_buttons.all()]
+
         return {
             "image": self.image.url,
             "title": self.title,
             "shortDescription": self.short_description,
             "description": self.description,
+            "contextButtons": context_buttons
         }
 
     @property
