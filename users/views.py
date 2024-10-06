@@ -1,4 +1,3 @@
-import json
 import uuid
 from io import BytesIO
 
@@ -8,6 +7,7 @@ from django.http import JsonResponse, HttpResponse, HttpRequest
 
 from common.exceptions import NovelPlusHttpExceptionResponse
 from users.models import User
+from utils import get_request_data
 
 
 def get_me(request: HttpRequest) -> HttpResponse:
@@ -52,10 +52,7 @@ def logout_user(request: HttpRequest) -> HttpResponse:
 
 
 def login_user(request: HttpRequest) -> HttpResponse:
-    try:
-        data = json.loads(request.body)
-    except json.decoder.JSONDecodeError:
-        data = dict(request.GET or request.POST)
+    data = get_request_data(request)
 
     user = authenticate(request, username=data['username'].lower(), password=data['password'])
     if user is not None:
@@ -70,10 +67,7 @@ def login_user(request: HttpRequest) -> HttpResponse:
 
 
 def register_user(request: HttpRequest) -> HttpResponse:
-    try:
-        data = json.loads(request.body)
-    except json.decoder.JSONDecodeError:
-        data = dict(request.GET or request.POST)
+    data = get_request_data(request)
 
     if User.objects.filter(username=data['username'].lower()).exists():
         return NovelPlusHttpExceptionResponse(
@@ -93,10 +87,7 @@ def register_user(request: HttpRequest) -> HttpResponse:
 
 
 def login_via_vk(request: HttpRequest) -> HttpResponse:
-    try:
-        data = json.loads(request.body)
-    except json.decoder.JSONDecodeError:
-        data = dict(request.GET or request.POST)
+    data = get_request_data(request)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     body = {
@@ -132,9 +123,13 @@ def login_via_vk(request: HttpRequest) -> HttpResponse:
 
     return get_me(request)
 
+
 def change_profile(request):
+    data = get_request_data(request)
     user: User = request.user
 
+    if user.id != data['id']:
+        return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
 
-
-
+    # user.
+    return JsonResponse(user.get_user_page_info_dict(user.id))
