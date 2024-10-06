@@ -5,13 +5,11 @@ from io import BytesIO
 import requests
 from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse, HttpResponse, HttpRequest
-from django.views.decorators.csrf import csrf_exempt
 
 from common.exceptions import NovelPlusHttpExceptionResponse
 from users.models import User
 
 
-@csrf_exempt
 def get_me(request: HttpRequest) -> HttpResponse:
     user: User = request.user
 
@@ -30,7 +28,6 @@ def get_me(request: HttpRequest) -> HttpResponse:
         )
 
 
-@csrf_exempt
 def get_user(request: HttpRequest, user_id: int) -> HttpResponse:
     try:
         user: User = User.objects.get(id=user_id)
@@ -41,7 +38,6 @@ def get_user(request: HttpRequest, user_id: int) -> HttpResponse:
         return NovelPlusHttpExceptionResponse(request, "Произошла ошибка на стороне сервера", 500, repr(e))
 
 
-@csrf_exempt
 def logout_user(request: HttpRequest) -> HttpResponse:
     logout(request)
 
@@ -55,7 +51,6 @@ def logout_user(request: HttpRequest) -> HttpResponse:
     )
 
 
-@csrf_exempt
 def login_user(request: HttpRequest) -> HttpResponse:
     try:
         data = json.loads(request.body)
@@ -74,7 +69,6 @@ def login_user(request: HttpRequest) -> HttpResponse:
         )
 
 
-@csrf_exempt
 def register_user(request: HttpRequest) -> HttpResponse:
     try:
         data = json.loads(request.body)
@@ -98,7 +92,6 @@ def register_user(request: HttpRequest) -> HttpResponse:
     return get_me(request)
 
 
-@csrf_exempt
 def login_via_vk(request: HttpRequest) -> HttpResponse:
     try:
         data = json.loads(request.body)
@@ -138,3 +131,10 @@ def login_via_vk(request: HttpRequest) -> HttpResponse:
     login(request, user)
 
     return get_me(request)
+
+def change_profile(request):
+    user: User = request.user
+
+
+
+
