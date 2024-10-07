@@ -124,7 +124,7 @@ def login_via_vk(request: HttpRequest) -> HttpResponse:
     return get_me(request)
 
 
-def change_profile(request):
+def update_profile(request):
     data = get_request_data(request)
     user: User = request.user
 
@@ -133,3 +133,16 @@ def change_profile(request):
 
     # user.
     return JsonResponse(user.get_user_page_info_dict(user.id))
+
+
+def update_avatar(request):
+
+    user: User = request.user
+    if user.is_authenticated:
+        try:
+            user.avatar.save(user.username + ".jpg", request.FILES['avatar'], save=True)
+            return get_me(request)
+        except Exception as e:
+            return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
+
+    return NovelPlusHttpExceptionResponse(request, "У вас нет прав!", 403)
