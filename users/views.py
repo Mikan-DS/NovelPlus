@@ -128,15 +128,34 @@ def update_profile(request):
     data = get_request_data(request)
     user: User = request.user
 
-    if user.id != data['id']:
+    try:
+        if user.id != int(data['id'][0]):
+            return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
+    except KeyError:
+        return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
+    except ValueError:
         return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
 
-    # user.
-    return JsonResponse(user.get_user_page_info_dict(user.id))
+    if "firstName" in data['changes']:
+        user.first_name = data.get("firstName")[0]
+    if "lastName" in data['changes']:
+        user.last_name = data.get("lastName")[0]
+    if "email" in data['changes']:
+        user.email = data.get("email")[0]
+    if "description" in data['changes']:
+        user.description = data.get("description")[0]
+    if 'avatar' in data['changes']:
+        try:
+            user.avatar.save(user.username + ".jpg", request.FILES['avatar'], save=False)
+        except Exception as e:
+            return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
+
+    user.save()
+
+    return JsonResponse({"success": True})
 
 
 def update_avatar(request):
-
     user: User = request.user
     if user.is_authenticated:
         try:
