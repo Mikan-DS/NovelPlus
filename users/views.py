@@ -1,17 +1,15 @@
-import json
 import uuid
 from io import BytesIO
 
 import requests
 from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse, HttpResponse, HttpRequest
-from django.views.decorators.csrf import csrf_exempt
 
 from common.exceptions import NovelPlusHttpExceptionResponse
 from users.models import User
+from utils import get_request_data
 
 
-@csrf_exempt
 def get_me(request: HttpRequest) -> HttpResponse:
     user: User = request.user
 
@@ -30,7 +28,6 @@ def get_me(request: HttpRequest) -> HttpResponse:
         )
 
 
-@csrf_exempt
 def get_user(request: HttpRequest, user_id: int) -> HttpResponse:
     try:
         user: User = User.objects.get(id=user_id)
@@ -41,7 +38,6 @@ def get_user(request: HttpRequest, user_id: int) -> HttpResponse:
         return NovelPlusHttpExceptionResponse(request, "Произошла ошибка на стороне сервера", 500, repr(e))
 
 
-@csrf_exempt
 def logout_user(request: HttpRequest) -> HttpResponse:
     logout(request)
 
@@ -55,12 +51,8 @@ def logout_user(request: HttpRequest) -> HttpResponse:
     )
 
 
-@csrf_exempt
 def login_user(request: HttpRequest) -> HttpResponse:
-    try:
-        data = json.loads(request.body)
-    except json.decoder.JSONDecodeError:
-        data = dict(request.GET or request.POST)
+    data = get_request_data(request)
 
     user = authenticate(request, username=data['username'].lower(), password=data['password'])
     if user is not None:
@@ -74,12 +66,8 @@ def login_user(request: HttpRequest) -> HttpResponse:
         )
 
 
-@csrf_exempt
 def register_user(request: HttpRequest) -> HttpResponse:
-    try:
-        data = json.loads(request.body)
-    except json.decoder.JSONDecodeError:
-        data = dict(request.GET or request.POST)
+    data = get_request_data(request)
 
     if User.objects.filter(username=data['username'].lower()).exists():
         return NovelPlusHttpExceptionResponse(
@@ -98,12 +86,8 @@ def register_user(request: HttpRequest) -> HttpResponse:
     return get_me(request)
 
 
-@csrf_exempt
 def login_via_vk(request: HttpRequest) -> HttpResponse:
-    try:
-        data = json.loads(request.body)
-    except json.decoder.JSONDecodeError:
-        data = dict(request.GET or request.POST)
+    data = get_request_data(request)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     body = {
@@ -138,3 +122,46 @@ def login_via_vk(request: HttpRequest) -> HttpResponse:
     login(request, user)
 
     return get_me(request)
+
+
+def update_profile(request):
+    data = get_request_data(request)
+    user: User = request.user
+
+    try:
+        if user.id != int(data['id'][0]):
+            return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
+    except KeyError:
+        return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
+    except ValueError:
+        return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
+
+    if "firstName" in data['changes']:
+        user.first_name = data.get("firstName")[0]
+    if "lastName" in data['changes']:
+        user.last_name = data.get("lastName")[0]
+    if "email" in data['changes']:
+        user.email = data.get("email")[0]
+    if "description" in data['changes']:
+        user.description = data.get("description")[0]
+    if 'avatar' in data['changes']:
+        try:
+            user.avatar.save(user.username + ".jpg", request.FILES['avatar'], save=False)
+        except Exception as e:
+            return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
+
+    user.save()
+
+    return JsonResponse({"success": True})
+
+
+def update_avatar(request):
+    user: User = request.user
+    if user.is_authenticated:
+        try:
+            user.avatar.save(user.username + ".jpg", request.FILES['avatar'], save=True)
+            return get_me(request)
+        except Exception as e:
+            return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
+
+    return NovelPlusHttpExceptionResponse(request, "У вас нет прав!", 403)

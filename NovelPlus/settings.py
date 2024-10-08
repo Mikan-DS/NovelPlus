@@ -49,10 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users.apps.UsersConfig',
     'common.apps.CommonConfig',
-    'store.apps.StoreConfig',
-    'vacancy.apps.VacancyConfig',
     'frontend.apps.FrontendConfig',
-
 ]
 
 MIDDLEWARE = [
