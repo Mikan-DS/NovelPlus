@@ -82,13 +82,16 @@ class ItemData(models.Model):
 
     @property
     def item_dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
+
+        context_buttons = [{"name": cb.button_type.verbose, "url": cb.url} for cb in self.context_buttons.all()]
+
         return {
             "image": self.image.url,
             "title": self.title,
             "shortDescription": self.short_description,
             "description": self.description,
+            "contextButtons": context_buttons
         }
-
 
     @property
     def card_dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
@@ -103,9 +106,44 @@ class ItemData(models.Model):
         card = self.card_dict
         card.update({
             "status": self.status.verbose,
-            "updatedAt": self.updated_at.timestamp()//.001,
+            "updatedAt": self.updated_at.timestamp() // .001,
             "shortDescription": self.short_description
         })
 
         return card
 
+
+class ContextButtonType(models.Model):
+    name = models.CharField(max_length=20, primary_key=True)
+    verbose = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.verbose
+
+    class Meta:
+        ordering = ('verbose',)
+        verbose_name = 'Тип контекстной кнопки'
+        verbose_name_plural = 'Типы контекстных кнопок'
+
+
+class ItemDataContextButton(models.Model):
+    item_data = models.ForeignKey(ItemData,
+                                  on_delete=models.CASCADE,
+                                  related_name='context_buttons',
+                                  verbose_name='Информационный объект'
+                                  )
+    button_type = models.ForeignKey(
+        'common.ContextButtonType',
+        on_delete=models.CASCADE,
+        related_name='item_data_buttons',
+        verbose_name='Тип кнопки'
+    )
+    url = models.URLField(max_length=255, verbose_name='Ссылка')
+
+    class Meta:
+        verbose_name = 'Контекстная кнопка информационного объекта'
+        verbose_name_plural = 'Контекстные кнопки информационных объектов'
+        unique_together = ('item_data', 'button_type')
+
+    def __str__(self):
+        return f'{self.button_type.verbose} = {self.url}'

@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.app, name='index'),
     path('users/vk-login/', views.app, name='index'),
+    path('users/<int:user_id>/', views.user, name='user'),
     path('about/', views.about, name='about'),
     path('store/', views.store, name='store'),
     path('store/<slug:page>/', views.store, name='store-page'),

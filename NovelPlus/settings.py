@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
+
 from pathlib import Path
 
 from bd_config import default_database
@@ -25,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-+l_9olvm8c90$1y39)ukodf4_zdt^4vhdf+n+b=^i9tyl$wki%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = bool(os.environ.get('LOCALDEV', False))
 
 ALLOWED_HOSTS = [
     "vnovelplus.temp.swtest.ru",
@@ -47,10 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users.apps.UsersConfig',
     'common.apps.CommonConfig',
-    'store.apps.StoreConfig',
-    'vacancy.apps.VacancyConfig',
     'frontend.apps.FrontendConfig',
-
 ]
 
 MIDDLEWARE = [

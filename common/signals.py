@@ -1,7 +1,7 @@
 from django.db.models.signals import post_migrate, post_delete
 from django.dispatch import receiver
 
-from common.models import ItemDataCollection, ItemDataStatus
+from common.models import ItemDataCollection, ItemDataStatus, ContextButtonType
 
 
 @receiver(post_migrate)
@@ -39,6 +39,24 @@ def create_status_types(sender, **kwargs):
         except Exception as e:
             print(f"[-] {repr(e)} - {collection_name} {collection_verbose}")
 
+@receiver(post_migrate)
+def create_context_button_types(sender, **kwargs):
+    default_context_button_types = (
+        ("telegram", "Телеграм"),
+        ("vk", "Вконтакте"),
+        ("email", "E-MAIL"),
+        ("steam", "Страница в стиме"),
+        ("itchio", "Страница в itch.io"),
+    )
+
+    for name, verbose in default_context_button_types:
+        try:
+            ContextButtonType.objects.get_or_create(name=name, verbose=verbose)
+        except Exception as e:
+            print(f"[-] {repr(e)} - {name} {verbose}")
+
+
+
 
 def add_signals():
-    print("[+] Store signals added")
+    print("[+] Common signals added")
