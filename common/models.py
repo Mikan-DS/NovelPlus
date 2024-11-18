@@ -33,10 +33,10 @@ class ItemDataStatus(models.Model):
 
 class ItemData(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название')
-    image = models.ImageField(upload_to='images/', verbose_name='Главное изображение')
+    image = models.ImageField(upload_to='images/', verbose_name='Главное изображение', null=True, blank=True)
     description = models.TextField(verbose_name='Описание')
     short_description = models.TextField(max_length=256, verbose_name='Краткое описание')
-    preview = models.ImageField(upload_to='images/previews/', verbose_name='Превью')
+    preview = models.ImageField(upload_to='images/previews/', verbose_name='Превью', null=True, blank=True)
 
     collection = models.ForeignKey(
         ItemDataCollection,
