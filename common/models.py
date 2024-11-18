@@ -85,11 +85,16 @@ class ItemData(models.Model):
 
         context_buttons = [{"name": cb.button_type.verbose, "url": cb.url} for cb in self.context_buttons.all()]
 
+        author = None
+        if self.author:
+            author = self.author.id
+
         return {
             "image": self.image.url,
             "title": self.title,
             "shortDescription": self.short_description,
             "description": self.description,
+            "author": author,
             "contextButtons": context_buttons
         }
 
