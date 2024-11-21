@@ -33,10 +33,10 @@ class ItemDataStatus(models.Model):
 
 class ItemData(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название')
-    image = models.ImageField(upload_to='images/', verbose_name='Главное изображение')
+    image = models.ImageField(upload_to='images/', verbose_name='Главное изображение', null=True, blank=True)
     description = models.TextField(verbose_name='Описание')
     short_description = models.TextField(max_length=256, verbose_name='Краткое описание')
-    preview = models.ImageField(upload_to='images/previews/', verbose_name='Превью')
+    preview = models.ImageField(upload_to='images/previews/', verbose_name='Превью', null=True, blank=True)
 
     collection = models.ForeignKey(
         ItemDataCollection,
@@ -72,10 +72,10 @@ class ItemData(models.Model):
         return {
             "id": self.id,
             "title": self.title,
-            "image": self.image.url,
+            "image": None if not self.image else self.image.url,
             "description": self.description,
             "shortDescription": self.short_description,
-            "preview": self.preview.url,
+            "preview": None if not self.preview else self.preview.url,
             "createdAt": self.created_at.timestamp(),
             "updatedAt": self.updated_at.timestamp(),
         }
@@ -90,7 +90,8 @@ class ItemData(models.Model):
             author = self.author.id
 
         return {
-            "image": self.image.url,
+            "id": self.id,
+            "image": None if not self.image else self.image.url,
             "title": self.title,
             "shortDescription": self.short_description,
             "description": self.description,
@@ -103,7 +104,7 @@ class ItemData(models.Model):
         return {
             "id": self.id,
             "title": self.title,
-            "preview": self.preview.url
+            "preview": None if not self.preview else self.preview.url
         }
 
     @property

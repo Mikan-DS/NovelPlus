@@ -9,7 +9,7 @@ class User(AbstractUser):
 
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name='Аватарка')
     vk_user_id = models.IntegerField(blank=True, null=True, unique=True, verbose_name="ID VK")
-    description = models.TextField(default="", verbose_name='Описание профиля')
+    description = models.TextField(default="", verbose_name='Описание профиля', blank=True)
 
     class Meta:
         db_table = 'auth_user'
