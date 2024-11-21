@@ -72,10 +72,10 @@ class ItemData(models.Model):
         return {
             "id": self.id,
             "title": self.title,
-            "image": self.image.url,
+            "image": None if not self.image else self.image.url,
             "description": self.description,
             "shortDescription": self.short_description,
-            "preview": self.preview.url,
+            "preview": None if not self.preview else self.preview.url,
             "createdAt": self.created_at.timestamp(),
             "updatedAt": self.updated_at.timestamp(),
         }
@@ -90,7 +90,8 @@ class ItemData(models.Model):
             author = self.author.id
 
         return {
-            "image": self.image.url,
+            "id": self.id,
+            "image": None if not self.image else self.image.url,
             "title": self.title,
             "shortDescription": self.short_description,
             "description": self.description,
@@ -103,7 +104,7 @@ class ItemData(models.Model):
         return {
             "id": self.id,
             "title": self.title,
-            "preview": self.preview.url
+            "preview": None if not self.preview else self.preview.url
         }
 
     @property
