@@ -1,8 +1,11 @@
+import json
+import re
+
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest, JsonResponse
 
 from common.exceptions import NovelPlusHttpExceptionResponse
-from common.models import ItemData
+from common.models import ItemData, ContextButtonType
 from users.models import User
 from utils import get_request_data
 
@@ -43,6 +46,7 @@ def get_item(request: HttpRequest, collection: str, item_id: int) -> HttpRespons
             {"message": repr(e)}
         )
 
+
 def update_item(request):
     data = get_request_data(request)
     user: User = request.user
@@ -66,10 +70,37 @@ def update_item(request):
                 item.image.save(user.username + str(item.id) + ".jpg", request.FILES['image'], save=False)
             except Exception as e:
                 return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
+        elif change == "contextButtons":
+            buttons = json.loads(data.get(change)[0])
+            for button in buttons:
+                button_type = ContextButtonType.objects.filter(verbose=button["name"]).first()
+                if button_type:
+                    if not button["url"]:
+                        item_context_button = item.context_buttons.filter(button_type=button_type).first()
+                        if item_context_button:
+                            item_context_button.delete()
+                    elif re.match(button_type.host_regex, button["url"]):
+                        item_context_button, create = item.context_buttons.get_or_create(
+                            button_type=button_type,
+                            defaults={
+                                "url": button["url"]
+                            }
+                        )
+                        if not create:
+                            item_context_button.url = button["url"]
+                        item_context_button.save()
         else:
             setattr(item, change, data.get(change)[0])
-
 
     item.save()
 
     return JsonResponse({"success": True})
+
+
+def context_buttons_list(request):
+    return JsonResponse(
+        {
+            "success": True,
+            "context_buttons": [cb.verbose for cb in ContextButtonType.objects.all()]
+        }
+    )

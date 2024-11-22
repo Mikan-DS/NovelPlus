@@ -24,7 +24,7 @@ admin.site.register(ItemData, ItemDataAdmin)
 
 
 class ContextButtonTypeAdmin(admin.ModelAdmin):
-    list_display = ('verbose', 'name')
+    list_display = ('verbose', 'name', 'host_regex')
     search_fields = ('verbose', 'name')
     ordering = ('verbose',)
 
