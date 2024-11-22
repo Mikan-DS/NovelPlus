@@ -42,16 +42,16 @@ def create_status_types(sender, **kwargs):
 @receiver(post_migrate)
 def create_context_button_types(sender, **kwargs):
     default_context_button_types = (
-        ("telegram", "Телеграм"),
-        ("vk", "Вконтакте"),
-        ("email", "E-MAIL"),
-        ("steam", "Страница в стиме"),
-        ("itchio", "Страница в itch.io"),
+        ("telegram", "Телеграм", r"https://t\.me/"),
+        ("vk", "Вконтакте", "https://vk.com/"),
+        ("email", "E-MAIL", "mailto://"),
+        ("steam", "Страница в стиме", r"https://(?store\.steampowered|steamcommunity)\.com/"),
+        ("itchio", "Страница в itch.io", r"https://\w+\.itch\.io/"),
     )
 
-    for name, verbose in default_context_button_types:
+    for name, verbose, host_regex in default_context_button_types:
         try:
-            ContextButtonType.objects.get_or_create(name=name, verbose=verbose)
+            ContextButtonType.objects.get_or_create(name=name, verbose=verbose, host_regex=host_regex)
         except Exception as e:
             print(f"[-] {repr(e)} - {name} {verbose}")
 

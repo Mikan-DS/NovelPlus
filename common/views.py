@@ -1,10 +1,13 @@
+import json
+import re
+
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest, JsonResponse
 
 from common.exceptions import NovelPlusHttpExceptionResponse
-from common.models import ItemData
+from common.models import ItemData, ContextButtonType
 from users.models import User
-from utils import get_request_data
+from utils import get_request_data, update_context_buttons
 
 
 def get_cards(request: HttpRequest, variant: str, collection: str) -> HttpResponse:
@@ -43,6 +46,7 @@ def get_item(request: HttpRequest, collection: str, item_id: int) -> HttpRespons
             {"message": repr(e)}
         )
 
+
 def update_item(request):
     data = get_request_data(request)
     user: User = request.user
@@ -66,10 +70,20 @@ def update_item(request):
                 item.image.save(user.username + str(item.id) + ".jpg", request.FILES['image'], save=False)
             except Exception as e:
                 return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
+        elif change == "contextButtons":
+            update_context_buttons(data.get(change)[0], item)
         else:
             setattr(item, change, data.get(change)[0])
-
 
     item.save()
 
     return JsonResponse({"success": True})
+
+
+def context_buttons_list(request):
+    return JsonResponse(
+        {
+            "success": True,
+            "context_buttons": [cb.verbose for cb in ContextButtonType.objects.all()]
+        }
+    )
