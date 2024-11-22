@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpRequest, JsonResponse
 from common.exceptions import NovelPlusHttpExceptionResponse
 from common.models import ItemData, ContextButtonType
 from users.models import User
-from utils import get_request_data
+from utils import get_request_data, update_context_buttons
 
 
 def get_cards(request: HttpRequest, variant: str, collection: str) -> HttpResponse:
@@ -71,24 +71,7 @@ def update_item(request):
             except Exception as e:
                 return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
         elif change == "contextButtons":
-            buttons = json.loads(data.get(change)[0])
-            for button in buttons:
-                button_type = ContextButtonType.objects.filter(verbose=button["name"]).first()
-                if button_type:
-                    if not button["url"]:
-                        item_context_button = item.context_buttons.filter(button_type=button_type).first()
-                        if item_context_button:
-                            item_context_button.delete()
-                    elif re.match(button_type.host_regex, button["url"]):
-                        item_context_button, create = item.context_buttons.get_or_create(
-                            button_type=button_type,
-                            defaults={
-                                "url": button["url"]
-                            }
-                        )
-                        if not create:
-                            item_context_button.url = button["url"]
-                        item_context_button.save()
+            update_context_buttons(data.get(change)[0], item)
         else:
             setattr(item, change, data.get(change)[0])
 
