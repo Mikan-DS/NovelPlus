@@ -112,7 +112,7 @@ class ItemData(models.Model):
         card = self.card_dict
         card.update({
             "status": self.status.verbose,
-            "updatedAt": self.updated_at.timestamp() // .001,
+            "updatedAt": self.updated_at.timestamp(),
             "shortDescription": self.short_description
         })
 
