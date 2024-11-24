@@ -1,3 +1,5 @@
+import json
+import re
 import uuid
 from io import BytesIO
 
@@ -6,8 +8,9 @@ from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse, HttpResponse, HttpRequest
 
 from common.exceptions import NovelPlusHttpExceptionResponse
+from common.models import ContextButtonType
 from users.models import User
-from utils import get_request_data
+from utils import get_request_data, update_context_buttons
 
 
 def get_me(request: HttpRequest) -> HttpResponse:
@@ -136,19 +139,17 @@ def update_profile(request):
     except ValueError:
         return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
 
-    if "firstName" in data['changes']:
-        user.first_name = data.get("firstName")[0]
-    if "lastName" in data['changes']:
-        user.last_name = data.get("lastName")[0]
-    if "email" in data['changes']:
-        user.email = data.get("email")[0]
-    if "description" in data['changes']:
-        user.description = data.get("description")[0]
-    if 'avatar' in data['changes']:
-        try:
-            user.avatar.save(user.username + ".jpg", request.FILES['avatar'], save=False)
-        except Exception as e:
-            return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
+
+    for change in data['changes']:
+        if change == "image":
+            try:
+                user.avatar.save(user.username + ".jpg", request.FILES['avatar'], save=False)
+            except Exception as e:
+                return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
+        elif change == "contextButtons":
+            update_context_buttons(data.get(change)[0], user)
+        else:
+            setattr(user, change, data.get(change)[0])
 
     user.save()
 
