@@ -12,5 +12,6 @@ urlpatterns = [
     path('vacancy/', views.vacancy, name='vacancy'),
     path('vacancy/<slug:page>/', views.vacancy, name='vacancy-page'),
     path('<slug:collection>/<int:item_id>/', views.item_page, name='item-view'),
+    path('<slug:collection>/create/', views.item_page, name='create-item-view'),
     # re_path('(?:store|vacancy|[a-z]+)?(?:/[^/]+)?/?', views.app, name='app'),
 ]
