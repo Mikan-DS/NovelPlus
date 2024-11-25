@@ -79,7 +79,7 @@ def update_item(request):
         return NovelPlusHttpExceptionResponse(request, "Такого объекта не существует", status=403)
 
     try:
-        if not (user.id == int(data['author'][0]) == item.author.id):
+        if not (user.id == int(data['author'][0]) == item.author.id or user.is_staff):
             return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
     except KeyError:
         return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)

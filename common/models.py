@@ -76,13 +76,16 @@ class ItemData(models.Model):
 
     @property
     def dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
+        preview = self.preview or self.image
+        if preview:
+            preview = preview.url
         return {
             "id": self.id,
             "title": self.title,
             "image": None if not self.image else self.image.url,
             "description": self.description,
             "shortDescription": self.short_description,
-            "preview": None if not self.preview else self.preview.url,
+            "preview": preview,
             "createdAt": self.created_at.timestamp(),
             "updatedAt": self.updated_at.timestamp(),
         }
@@ -109,10 +112,13 @@ class ItemData(models.Model):
 
     @property
     def card_dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
+        preview = self.preview or self.image or None
+        if preview:
+            preview = preview.url
         return {
             "id": self.id,
             "title": self.title,
-            "preview": None if not self.preview else self.preview.url
+            "preview": preview
         }
 
     @property
