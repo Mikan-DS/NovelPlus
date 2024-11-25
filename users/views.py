@@ -131,6 +131,12 @@ def update_profile(request):
     data = get_request_data(request)
     user: User = request.user
 
+    if user.is_staff:
+        try:
+            user = User.objects.get(id=data['id'][0])
+        except User.DoesNotExist:
+            return NovelPlusHttpExceptionResponse(request, "Пользователь не найден", status=403)
+
     try:
         if user.id != int(data['id'][0]):
             return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=403)
