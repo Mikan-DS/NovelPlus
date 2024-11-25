@@ -22,6 +22,13 @@ class ItemDataStatus(models.Model):
     name = models.CharField(max_length=20, primary_key=True)
     verbose = models.CharField(max_length=20)
 
+    @property
+    def select_data_dict(self) -> typing.Dict[str, str]:
+        return {
+            "verbose": self.verbose,
+            "name": self.name
+        }
+
     def __str__(self):
         return self.verbose
 
@@ -96,7 +103,8 @@ class ItemData(models.Model):
             "shortDescription": self.short_description,
             "description": self.description,
             "author": author,
-            "contextButtons": context_buttons
+            "contextButtons": context_buttons,
+            "status": self.status.select_data_dict
         }
 
     @property
@@ -111,7 +119,7 @@ class ItemData(models.Model):
     def mini_card_dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
         card = self.card_dict
         card.update({
-            "status": self.status.verbose,
+            "status": self.status.select_data_dict,
             "updatedAt": self.updated_at.timestamp(),
             "shortDescription": self.short_description
         })

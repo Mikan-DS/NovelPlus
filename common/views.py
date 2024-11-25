@@ -5,7 +5,7 @@ from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest, JsonResponse
 
 from common.exceptions import NovelPlusHttpExceptionResponse
-from common.models import ItemData, ContextButtonType, ItemDataCollection
+from common.models import ItemData, ContextButtonType, ItemDataCollection, ItemDataStatus
 from users.models import User
 from utils import get_request_data, update_context_buttons
 
@@ -71,6 +71,7 @@ def update_item(request):
             title=created_data.get("title", "Unnamed"),
             author=user,
             collection=collection,
+            status=ItemDataStatus.objects.first(),
             is_passed_moderation=True #TODO автомодерация на первых этапах
         )
 
@@ -93,12 +94,17 @@ def update_item(request):
                 return NovelPlusHttpExceptionResponse(request, "Произошла ошибка", 500, repr(e))
         elif change == "contextButtons":
             update_context_buttons(data.get(change)[0], item)
+        elif change == "status":
+            try:
+                item.status = ItemDataStatus.objects.get(name=data.get(change)[0])
+            except ItemDataStatus.DoesNotExist:
+                return NovelPlusHttpExceptionResponse(request, "Такого статуса не существует", status=404)
         else:
             setattr(item, change, data.get(change)[0])
 
     item.save()
 
-    return JsonResponse({"success": True})
+    return JsonResponse({"success": True, "id": item.id})
 
 
 def context_buttons_list(request):
@@ -106,5 +112,16 @@ def context_buttons_list(request):
         {
             "success": True,
             "context_buttons": [cb.verbose for cb in ContextButtonType.objects.all()]
+        }
+    )
+
+
+def item_statuses_list(request):
+    return JsonResponse(
+        {
+            "success": True,
+            "item_status": [
+                status.select_data_dict for status in ItemDataStatus.objects.all()
+            ]
         }
     )
