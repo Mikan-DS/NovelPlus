@@ -15,7 +15,7 @@ class ItemDataButtonsInline(admin.TabularInline):
 
 class ItemDataAdmin(admin.ModelAdmin):
     list_display = ('title', "author", 'status', 'created_at', 'updated_at', 'get_link')
-    search_fields = ('title', 'author')
+    search_fields = ('title', 'author__username')
     list_filter = ('collection', 'status')
     ordering = ('-created_at', '-updated_at', 'id')
 

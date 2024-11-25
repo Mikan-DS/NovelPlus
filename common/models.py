@@ -22,6 +22,13 @@ class ItemDataStatus(models.Model):
     name = models.CharField(max_length=20, primary_key=True)
     verbose = models.CharField(max_length=20)
 
+    @property
+    def select_data_dict(self) -> typing.Dict[str, str]:
+        return {
+            "verbose": self.verbose,
+            "name": self.name
+        }
+
     def __str__(self):
         return self.verbose
 
@@ -34,8 +41,8 @@ class ItemDataStatus(models.Model):
 class ItemData(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название')
     image = models.ImageField(upload_to='images/', verbose_name='Главное изображение', null=True, blank=True)
-    description = models.TextField(verbose_name='Описание')
-    short_description = models.TextField(max_length=256, verbose_name='Краткое описание')
+    description = models.TextField(verbose_name='Описание', blank=True, default="")
+    short_description = models.TextField(max_length=256, verbose_name='Краткое описание', default="")
     preview = models.ImageField(upload_to='images/previews/', verbose_name='Превью', null=True, blank=True)
 
     collection = models.ForeignKey(
@@ -69,13 +76,16 @@ class ItemData(models.Model):
 
     @property
     def dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
+        preview = self.preview or self.image
+        if preview:
+            preview = preview.url
         return {
             "id": self.id,
             "title": self.title,
             "image": None if not self.image else self.image.url,
             "description": self.description,
             "shortDescription": self.short_description,
-            "preview": None if not self.preview else self.preview.url,
+            "preview": preview,
             "createdAt": self.created_at.timestamp(),
             "updatedAt": self.updated_at.timestamp(),
         }
@@ -96,22 +106,26 @@ class ItemData(models.Model):
             "shortDescription": self.short_description,
             "description": self.description,
             "author": author,
-            "contextButtons": context_buttons
+            "contextButtons": context_buttons,
+            "status": self.status.select_data_dict
         }
 
     @property
     def card_dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
+        preview = self.preview or self.image or None
+        if preview:
+            preview = preview.url
         return {
             "id": self.id,
             "title": self.title,
-            "preview": None if not self.preview else self.preview.url
+            "preview": preview
         }
 
     @property
     def mini_card_dict(self) -> typing.Dict[str, typing.Union[str, int, float, None]]:
         card = self.card_dict
         card.update({
-            "status": self.status.verbose,
+            "status": self.status.select_data_dict,
             "updatedAt": self.updated_at.timestamp(),
             "shortDescription": self.short_description
         })
