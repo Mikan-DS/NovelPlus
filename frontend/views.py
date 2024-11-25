@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from common.models import ItemData
+from common.models import ItemData, ItemDataCollection
 from users.models import User
 
 TITLE_TAGS = [
@@ -54,6 +54,19 @@ def item_page(request, collection, item_id):
         titles.append(item.title)
         titles.append(item.collection.verbose)
     except ItemData.DoesNotExist:
+        titles.append("Страница не найдена")
+
+    title = " | ".join(titles + TITLE_TAGS)
+
+    return render(request, 'frontend/app.html', {"title": title})
+
+def create_new_item_page(request, collection):
+    titles = []
+    try:
+        item = ItemDataCollection.objects.get(name=collection)
+        titles.append("Добавление")
+        titles.append(item.verbose)
+    except ItemDataCollection.DoesNotExist:
         titles.append("Страница не найдена")
 
     title = " | ".join(titles + TITLE_TAGS)
