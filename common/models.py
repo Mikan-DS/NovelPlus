@@ -137,7 +137,7 @@ class ContextButtonType(models.Model):
     name = models.CharField(max_length=20, primary_key=True)
     verbose = models.CharField(max_length=20)
 
-    host_regex = models.CharField(max_length=20, default="", blank=True)
+    host_regex = models.CharField(max_length=256, default="", blank=True)
 
     def __str__(self):
         return self.verbose

@@ -51,7 +51,9 @@ def create_context_button_types(sender, **kwargs):
 
     for name, verbose, host_regex in default_context_button_types:
         try:
-            ContextButtonType.objects.get_or_create(name=name, verbose=verbose, host_regex=host_regex)
+            ContextButtonType.objects.get_or_create(name=name, verbose=verbose, defaults={
+                "host_regex": host_regex
+            })
         except Exception as e:
             print(f"[-] {repr(e)} - {name} {verbose}")
 
