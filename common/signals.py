@@ -43,7 +43,8 @@ def create_status_types(sender, **kwargs):
 def create_context_button_types(sender, **kwargs):
     default_context_button_types = (
         ("telegram", "Телеграм", r"https://t\.me/"),
-        ("vk", "Вконтакте", "https://vk.com/"),
+        ("vk", "Вконтакте", r"https://vk\.com/"),
+        ("vkplay", "Страница VkPlay", r"https://vkplay\.ru/"),
         ("email", "E-MAIL", "mailto://"),
         ("steam", "Страница в стиме", r"https://(?store\.steampowered|steamcommunity)\.com/"),
         ("itchio", "Страница в itch.io", r"https://\w+\.itch\.io/"),
