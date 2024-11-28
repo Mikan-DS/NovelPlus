@@ -5,7 +5,7 @@ from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest, JsonResponse
 
 from common.exceptions import NovelPlusHttpExceptionResponse
-from common.models import ItemData, ContextButtonType, ItemDataCollection, ItemDataStatus
+from common.models import ItemData, ContextButtonType, ItemDataCollection, ItemDataStatus, Commentary
 from users.models import User
 from utils import get_request_data, update_context_buttons
 
@@ -72,7 +72,7 @@ def update_item(request):
             author=user,
             collection=collection,
             status=ItemDataStatus.objects.first(),
-            is_passed_moderation=True #TODO автомодерация на первых этапах
+            is_passed_moderation=True  # TODO автомодерация на первых этапах
         )
 
     if item is None:
@@ -125,3 +125,51 @@ def item_statuses_list(request):
             ]
         }
     )
+
+
+def get_item_comments(request: HttpRequest, item_id: int) -> HttpResponse:
+    try:
+        item: ItemData = ItemData.objects.get(id=item_id)
+
+    except ItemData.DoesNotExist:
+        return NovelPlusHttpExceptionResponse(
+            request,
+            "Страница не найдена",
+            404
+        )
+    except Exception as e:
+        return NovelPlusHttpExceptionResponse(
+            request,
+            "Exception",
+            500,
+            {"message": repr(e)}
+        )
+
+    comments = [comment.comment_dict for comment in item.comments.all().order_by("-created_at")]
+
+    return JsonResponse({"success": True, "comments": comments})
+
+
+def add_item_comment(request: HttpRequest, item_id: int) -> HttpResponse:
+    data = get_request_data(request)
+    user: User = request.user
+
+    if not user.is_authenticated:
+        return NovelPlusHttpExceptionResponse(request, "Вы не имеете право на эту операцию", status=401)
+
+    try:
+        item: ItemData = ItemData.objects.get(id=item_id)
+    except ItemData.DoesNotExist:
+        return NovelPlusHttpExceptionResponse(
+            request,
+            "Страница не найдена",
+            404
+        )
+
+    Commentary.objects.create(
+        user=user,
+        item=item,
+        text=data["text"][0],
+    )
+
+    return JsonResponse({"success": True})

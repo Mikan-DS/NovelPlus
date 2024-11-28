@@ -147,7 +147,7 @@ def update_profile(request):
 
 
     for change in data['changes']:
-        if change == "image":
+        if change == "avatar":
             try:
                 user.avatar.save(user.username + ".jpg", request.FILES['avatar'], save=False)
             except Exception as e:

@@ -29,6 +29,15 @@ class User(AbstractUser):
             'id': self.id
         }
 
+    @property
+    def as_common_info_dict(self) -> dict:
+        return {
+            'username': self.username,
+            'firstName': self.first_name,
+            'avatar': self.avatar.url if self.avatar else None,
+            'id': self.id
+        }
+
     def get_user_page_info_dict(self, current_user_id: typing.Union[int, None]) -> dict:
 
         context_buttons = [{"name": cb.button_type.verbose, "url": cb.url} for cb in self.context_buttons.all()]

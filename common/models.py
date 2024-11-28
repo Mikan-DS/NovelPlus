@@ -169,3 +169,30 @@ class ItemDataContextButton(models.Model):
 
     def __str__(self):
         return f'{self.button_type.verbose} = {self.url}'
+
+
+class Commentary(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', verbose_name='Пользователь')
+    text = models.TextField(verbose_name='Текст комментария')
+
+    item = models.ForeignKey(ItemData, on_delete=models.CASCADE, related_name='comments', verbose_name='Предмет')
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата и время создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата и время обновления')
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+    def __str__(self):
+        return f'{self.user.username} | {self.item.title}'
+
+    @property
+    def comment_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "author": self.user.as_common_info_dict,
+            "text": self.text,
+            "createdAt": self.created_at.timestamp()
+        }
+
